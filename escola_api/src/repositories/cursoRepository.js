@@ -1,38 +1,48 @@
 const pool = require('../config/db');
 
-//Pegar todos os cursos  
-const getCursos = async (limit, offset) =>{
-    const sql = ``
+// Pegar todos os cursos
+const getALLCursos = async (limit, offset) => {
+    const sql = `SELECT * FROM cursos LIMIT $1 OFFSET $2`;
 
-    const resultado = await pool.query(sql,[limit,offset]);
+    const resultado = await pool.query(sql, [limit, offset]);
     return resultado.rows;
 };
 
-//criar  
-const createCursos = async (nome, vagas) =>{
-    const sql= ``;
+// Criar
+const createCursos = async (nome, vagas) => {
+    const sql = `
+        INSERT INTO cursos (nome, vagas)
+        VALUES ($1, $2)
+        RETURNING *
+    `;
 
-    const resultado = await pool.query(sql,[nome, vagas]);
+    const resultado = await pool.query(sql, [nome, vagas]);
     return resultado.rows;
 };
 
-//atualizar
-const updateCursos = async (id) =>{
-    const sql= ``;
+// Atualizar
+const updateCursos = async (id, nome, vagas) => {
+    const sql = `
+        UPDATE cursos
+        SET nome = $1, vagas = $2
+        WHERE id = $3
+        RETURNING *
+    `;
 
-    const resultado = await pool.query(sql,[nome, vagas, id]);
+    const resultado = await pool.query(sql, [nome, vagas, id]);
     return resultado.rows;
 };
 
-//deletar
-const deleteCursos = async (id)=>{
-    const sql = ``;
+// Deletar
+const deleteCursos = async (id) => {
+    const sql = `DELETE FROM cursos WHERE id = $1 RETURNING id`;
+
     const resultado = await pool.query(sql, [id]);
-    return resultado.rows
-}
+    return resultado.rows;
+};
 
 module.exports = {
-    getCursos,
+    getALLCursos,
     createCursos,
     updateCursos,
     deleteCursos
