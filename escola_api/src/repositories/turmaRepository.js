@@ -34,8 +34,8 @@ const updateTurma = async (id, nome, horario, curso_id) => {
     const sql = `
         UPDATE turmas
         SET nome = $1,
-            horario = $2,
-            curso_id = $3
+        horario = $2,
+        curso_id = $3
         WHERE id = $4
         RETURNING *
     `;
