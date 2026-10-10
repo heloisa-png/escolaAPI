@@ -8,11 +8,11 @@ const listarAlunos = async (req, res) => {
 
         return res.status(200).json({
             mensagem: 'Alunos encontrados',
-            Estudantes: alunos
+            aluno: alunos
         })
 
     } catch (erro) {
-        console.error(erro.mensagem)
+        console.error(erro.mensage)
         res.status(500).json({ mensagem: 'Erro interno' })
     };
 };
@@ -23,8 +23,18 @@ const criarAluno = async (req, res) => {
         const { nome, email } = req.body
 
         if (!nome || email === undefined) {
-            return res.status(400).json({ mensagem: 'Nome e email obrigatórios.' });
-        }
+            return res.status(400).json({
+                mensagem: 'Nome e email obrigatórios.'
+            });
+        };
+
+        //tinha esquecido dessa parte mais importante kk :p
+        const aluno = await alunoRepository.createAlunos(nome, email);
+        return res.status(201).json({
+            mensagem: 'aluno cadastrado com sucesso!',
+            aluno: aluno
+        });
+
     } catch (erro) {
         console.error(erro.mensagem)
         res.status(500).json({ mensagem: 'erro ao cadastrar aluno' })
@@ -32,30 +42,57 @@ const criarAluno = async (req, res) => {
 };
 
 //atualizar 
-const atualizarAluno = async (res, req) => {
-    const id = parseID(req.params.id)
-    if (!id) {
-        return res.status(400).json({
-            mensagem: 'Adicione seus dados.'
+const atualizarAluno = async (req, res) => {
+    try {
+        const dados = req.body;
+        const id = req.params.id
+
+        const aluno = await alunoRepository.updateAluno(
+            dados.nome,
+            dados.email,
+            id
+        );
+        if (aluno.length === 0) {
+            return res.status(404).json({
+                mensagem: 'Aluno não encontrado'
+            });
+        };
+        return res.status(200).json({
+            mensagem: 'Aluno atualizado com sucesso',
+            aluno: aluno
         });
+
+    } catch (erro) {
+        console.error('Erro ao atualizar aluno', erro.mensage);
+        return res.status(500).json({ mensagem: 'Erro interno ao atualizar aluno.' })
     };
+};
+
+const deletAluno = async (req, res) => {
+    const id = parseId(req.params.id);
+    if (!id) {
+        return res.status(400).json({ mensagem: 'O ID invalido.' });
+    }
 
     try {
-        const pedido = await alunoRepository.updateAluno(
-            id,
-            dados.nome,
-            dados.email
-        );
+        const aluno = await alunoRepository.deleteAluno(id);
+        if (!aluno) {
+            return res.status(404).json({ mensagem: 'Aluno não encontrado.' });
+        }
+        return res.json({
+            mensagem: 'aluno deletado com sucesso.', 
+            deletado: aluno
+        });
+    } catch (erro) {
+        console.error('Erro ao deletar aluno:', erro.message);
+        return res.status(500).json({ mensagem: 'Erro interno ao deletar aluno.' });
     }
-    if (!pedido) {
-        return res.status(404).json({
-            mensagem: 'Aluno não encontrado.'
-        })
-    }
-}
+};
 
 
 module.exports = {
     listarAlunos,
-    criarAluno
+    criarAluno,
+    atualizarAluno,
+    deletAluno
 };
